@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace CL\Mailer\Driver;
 
 use CL\Mailer\Message\ResolvedMessage;
+use Swift_Attachment;
+use Swift_Mailer;
+use Swift_Message;
+use Swift_MimePart;
 
 class SwiftmailerDriver implements DriverInterface
 {
@@ -26,31 +30,33 @@ class SwiftmailerDriver implements DriverInterface
      */
     public function send(ResolvedMessage $message): bool
     {
+        $header = $message->getMessageHeader();
+        $body = $message->getMessageBody();
         $swiftMailerMessage = new Swift_Message();
 
-        $swiftMailerMessage->setSubject($message->getSubject());
+        $swiftMailerMessage->setSubject($message->getMessageHeader()->getSubject());
 
-        foreach ($message->getFrom() as $recipient) {
+        foreach ($header->getFrom() as $recipient) {
             $swiftMailerMessage->addFrom($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($message->getTo() as $recipient) {
+        foreach ($header->getTo() as $recipient) {
             $swiftMailerMessage->addTo($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($message->getCc() as $recipient) {
+        foreach ($header->getCc() as $recipient) {
             $swiftMailerMessage->addCc($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($message->getBcc() as $recipient) {
+        foreach ($header->getBcc() as $recipient) {
             $swiftMailerMessage->addBcc($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($message->getReplyTo() as $recipient) {
+        foreach ($header->getReplyTo() as $recipient) {
             $swiftMailerMessage->addReplyTo($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($message->getParts() as $part) {
+        foreach ($body->getParts() as $part) {
             $swiftMailerMessage->attach(Swift_MimePart::newInstance(
                 $part->getContent(),
                 $part->getContentType(),
@@ -58,10 +64,10 @@ class SwiftmailerDriver implements DriverInterface
             ));
         }
 
-        foreach ($message->getAttachments() as $attachment) {
+        foreach ($body->getAttachments() as $attachment) {
             $swiftMailerMessage->attach(Swift_Attachment::newInstance(
                 $attachment->getData(),
-                $attachment->getFilename(),
+                $attachment->getName(),
                 $attachment->getContentType()
             ));
         }
