@@ -1,0 +1,36 @@
+{
+  "name": "cleentfaar/mailer-swiftmailer",
+  "description": "Swiftmailer extension for the Mailer library",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Cas Leentfaar",
+      "homepage": "https://github.com/cleentfaar"
+    }
+  ],
+  "keywords": [
+    "mail",
+    "swiftmailer"
+  ],
+  "require": {
+    "php": "^7.1",
+    "cleentfaar/mailer": "dev-master",
+    "swiftmailer/swiftmailer": "^5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.5",
+    "beberlei/assert": "^2.7",
+    "friendsofphp/php-cs-fixer": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "CL\\Mailer\\": "src/CL/Mailer"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CL\\Mailer\\Tests\\": "tests/CL/Mailer/Tests"
+    }
+  }
+}
