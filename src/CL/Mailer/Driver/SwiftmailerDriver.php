@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CL\Mailer\Driver;
 
-use CL\Mailer\Message\ResolvedMessage;
+use CL\Mailer\ResolvedMessageInterface;
 use Swift_Attachment;
 use Swift_Mailer;
 use Swift_Message;
@@ -28,13 +28,13 @@ class SwiftmailerDriver implements DriverInterface
     /**
      * @inheritdoc
      */
-    public function send(ResolvedMessage $message): bool
+    public function send(ResolvedMessageInterface $message): bool
     {
-        $header = $message->getMessageHeader();
-        $body = $message->getMessageBody();
+        $header = $message->getHeader();
+        $body = $message->getBody();
         $swiftMailerMessage = new Swift_Message();
 
-        $swiftMailerMessage->setSubject($message->getMessageHeader()->getSubject());
+        $swiftMailerMessage->setSubject($header->getSubject());
 
         foreach ($header->getFrom() as $recipient) {
             $swiftMailerMessage->addFrom($recipient->getEmail(), $recipient->getName());
@@ -56,11 +56,17 @@ class SwiftmailerDriver implements DriverInterface
             $swiftMailerMessage->addReplyTo($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($body->getParts() as $part) {
+        $swiftMailerMessage->setBody(
+            $body->getMainPart()->getContent(),
+            $body->getMainPart()->getContentType(),
+            $body->getMainPart()->getCharset()
+        );
+
+        if ($alternativePart = $body->getAlternativePart()) {
             $swiftMailerMessage->attach(Swift_MimePart::newInstance(
-                $part->getContent(),
-                $part->getContentType(),
-                $part->getCharset()
+                $alternativePart->getContent(),
+                $alternativePart->getContentType(),
+                $alternativePart->getCharset()
             ));
         }
 
