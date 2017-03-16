@@ -34,6 +34,10 @@ class SwiftmailerDriver implements DriverInterface
         $body = $message->getBody();
         $swiftMailerMessage = new Swift_Message();
 
+        if ($sender = $header->getSender()) {
+            $swiftMailerMessage->setSender($sender->getEmail(), $sender->getName());
+        }
+
         $swiftMailerMessage->setSubject($header->getSubject());
 
         foreach ($header->getFrom() as $recipient) {
