@@ -19,7 +19,7 @@
     "swiftmailer/swiftmailer": "^5.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5.5",
+    "phpunit/phpunit": "^5.7|^6.0",
     "beberlei/assert": "^2.7",
     "friendsofphp/php-cs-fixer": "^2.0"
   },

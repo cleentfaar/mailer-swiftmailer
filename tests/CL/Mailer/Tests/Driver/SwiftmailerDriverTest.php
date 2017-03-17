@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace CL\Mailer\Tests\Driver;
 
 use CL\Mailer\Driver\SwiftmailerDriver;
-use CL\Mailer\Message\Body;
-use CL\Mailer\Message\Header;
-use CL\Mailer\ResolvedMessage;
+use CL\Mailer\ResolvedMessageInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -44,10 +42,7 @@ class SwiftmailerDriverTest extends TestCase
             ->shouldBeCalledTimes(1)
         ;
 
-        $body = new Body();
-        $body->setMainPart(new Body\Part\HtmlPart('<strong>Hello, world!</strong>'));
-
-        $message = ResolvedMessage::fromHeaderAndBody(new Header(), $body);
+        $message = $this->prophesize(ResolvedMessageInterface::class)->reveal();
 
         $this->driver->send($message);
     }

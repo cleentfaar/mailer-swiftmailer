@@ -30,51 +30,53 @@ class SwiftmailerDriver implements DriverInterface
      */
     public function send(ResolvedMessageInterface $message): bool
     {
-        $header = $message->getHeader();
-        $body = $message->getBody();
         $swiftMailerMessage = new Swift_Message();
 
-        if ($sender = $header->getSender()) {
+        if ($sender = $message->getSender()) {
             $swiftMailerMessage->setSender($sender->getEmail(), $sender->getName());
         }
 
-        $swiftMailerMessage->setSubject($header->getSubject());
+        $swiftMailerMessage->setSubject($message->getSubject());
 
-        foreach ($header->getFrom() as $recipient) {
+        foreach ($message->getFrom() as $recipient) {
             $swiftMailerMessage->addFrom($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($header->getTo() as $recipient) {
+        foreach ($message->getTo() as $recipient) {
             $swiftMailerMessage->addTo($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($header->getCc() as $recipient) {
+        foreach ($message->getCc() as $recipient) {
             $swiftMailerMessage->addCc($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($header->getBcc() as $recipient) {
+        foreach ($message->getBcc() as $recipient) {
             $swiftMailerMessage->addBcc($recipient->getEmail(), $recipient->getName());
         }
 
-        foreach ($header->getReplyTo() as $recipient) {
+        foreach ($message->getReplyTo() as $recipient) {
             $swiftMailerMessage->addReplyTo($recipient->getEmail(), $recipient->getName());
         }
 
-        $swiftMailerMessage->setBody(
-            $body->getMainPart()->getContent(),
-            $body->getMainPart()->getContentType(),
-            $body->getMainPart()->getCharset()
-        );
+        $parts = $message->getParts();
 
-        if ($alternativePart = $body->getAlternativePart()) {
+        if ($firstPart = array_shift($parts)) {
+            $swiftMailerMessage->setBody(
+                $firstPart->getContent(),
+                $firstPart->getContentType(),
+                $firstPart->getCharset()
+            );
+        }
+
+        foreach ($parts as $part) {
             $swiftMailerMessage->attach(Swift_MimePart::newInstance(
-                $alternativePart->getContent(),
-                $alternativePart->getContentType(),
-                $alternativePart->getCharset()
+                $part->getContent(),
+                $part->getContentType(),
+                $part->getCharset()
             ));
         }
 
-        foreach ($body->getAttachments() as $attachment) {
+        foreach ($message->getAttachments() as $attachment) {
             $swiftMailerMessage->attach(Swift_Attachment::newInstance(
                 $attachment->getData(),
                 $attachment->getName(),
